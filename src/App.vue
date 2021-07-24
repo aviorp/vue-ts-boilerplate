@@ -1,32 +1,43 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app>
+    <Loading v-if="isLoading" />
+    <Popup v-if="type && text" :type="type" :text="text" />
+    <v-main>
+      <router-view
+        @loading-event="onLoading($event)"
+        @popup-message="onMessage($event)"
+      ></router-view>
+    </v-main>
+  </v-app>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import { Component, Vue } from "vue-property-decorator";
+import Loading from "@/components/Loading/Loading.vue";
+import Popup from "@/components/Popup/Popup.vue";
+import { PopupI } from "./interfaces";
+@Component({
+  components: {
+    Loading,
+    Popup,
+  },
+})
+export default class App extends Vue {
+  isLoading: boolean = false;
+  type: string = "";
+  text: string = "";
 
-#nav {
-  padding: 30px;
+  onLoading(condition: boolean) {
+    this.isLoading = condition;
+  };
 
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
+  onMessage({ type, text }: PopupI) {
+    this.type = type;
+    this.text = text;
+    setTimeout(() => {
+      this.type = "";
+      this.text = "";
+    }, 3000);
   }
 }
-</style>
+</script>
